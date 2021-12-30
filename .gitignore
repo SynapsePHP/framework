@@ -1,5 +1,4 @@
 /vendor/
 /.idea
 .DS_Store
-/dev_tests/.htaccess
-/dev_tests/router.php
+/dev_tests

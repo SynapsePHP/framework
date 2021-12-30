@@ -50,7 +50,7 @@ class Router
         $currentURL = explode('?', $_SERVER['REQUEST_URI'])[0];
 
         // Force removal of trailing slash
-        if ($currentURL[strlen($currentURL) - 1] === '/') {
+        if (strlen($currentURL) > 1 && $currentURL[strlen($currentURL) - 1] === '/') {
             $currentURL = substr($currentURL, 0, -1);
             header('location: ' . $currentURL);
             exit();
@@ -112,6 +112,11 @@ class Router
 
                                 foreach ($baseURLs as $lang => $burl) {
                                     $_url = str_replace('//', '/', $burl . $url);
+
+                                    // Make sure we do have a url with a trailing slash
+                                    if (strlen($_url) > 1 && $_url[strlen($_url) - 1] === '/') {
+                                        $_url = substr($_url, 0, -1);
+                                    }
 
                                     if (preg_match('#^' . $_url . '$#', $currentURL, $matched)) {
                                         unset($matched[0]);
