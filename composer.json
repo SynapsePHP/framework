@@ -1,0 +1,59 @@
+{
+    "name": "synapsephp/framework",
+    "description": "The Synapse PHP Framework",
+    "license": "MIT",
+    "version": "1.0.0",
+    "keywords": [
+        "framework",
+        "performance",
+        "mongodb"
+    ],
+    "authors": [
+        {
+            "name": "Leeroy Digital Agency",
+            "homepage": "https://leeroy.ca"
+        }
+    ],
+    "require": {
+        "php": ">=8.0.0",
+        "ext-curl": "*",
+        "ext-dom": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-mongodb": "^1.10.0",
+        "ext-openssl": "*",
+        "ext-pcre": "*",
+        "ext-pdo": "*",
+        "ext-zip": "*",
+        "aws/aws-sdk-php": "^3.208.7",
+        "icanboogie/inflector": "^v2.2.0",
+        "league/climate": "^3.7.0",
+        "mongodb/mongodb": "^1.11.0",
+        "nesbot/carbon": "^2.55.2",
+        "psr/simple-cache": "^1.0.1",
+        "selective/container": "^1.1.0",
+        "symfony/amazon-mailer": "^5.4",
+        "symfony/google-mailer": "^5.4",
+        "symfony/mailer": "^v5.4.0",
+        "symfony/sendgrid-mailer": "^v5.4.0",
+        "thecodingmachine/graphqlite": "^v5.0.2",
+        "twig/twig": "^v3.3.4",
+        "vlucas/phpdotenv": "^v5.4.1",
+        "voku/anti-xss": "^4.1.35"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-latest"
+    },
+    "autoload": {
+        "psr-4": {
+            "Synapse\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "platform": {
+            "php":  "8.0.0"
+        }
+    }
+}
