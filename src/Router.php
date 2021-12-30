@@ -150,14 +150,13 @@ class Router
 
         if ($routeFound && !empty($activeRoute)) {
             // Tell Synapse we are using set language
-            // TODO: DO IT WHEN I18n IS READY
+            I18n::setLocale($activeRoute->language);
 
             if ($activeRoute->isSecure) {
                 $activeRoute->verify();
             }
 
             // Execute the route
-            // TODO: Handle return (if string, output... otherwise JSON ENCODE)
             $return = $activeRoute->execute();
 
             if (!is_object($return) && !is_array($return)) {
@@ -167,35 +166,33 @@ class Router
                 header('Content-Type: application/json');
                 echo json_encode($return, JSON_THROW_ON_ERROR);
             }
-        } else {
-            if (static::$errorController !== '') {
-                $instance = new static::$errorController();
+        } else if (static::$errorController !== '') {
+            $instance = new static::$errorController();
 
-                if (!method_exists($instance, 'displayError')) {
-                    $exception = new Exceptions\Route(
-                        'The registered error controller does not have the required "displayError" method to handle the error. Please insure it exists.',
-                        500
-                    );
+            if (!method_exists($instance, 'displayError')) {
+                $exception = new Exceptions\Route(
+                    'The registered error controller does not have the required "displayError" method to handle the error. Please insure it exists.',
+                    500
+                );
 
-                    $exception->output();
-                }
-
-                $isJSON = static::isJSONRequest();
-                $return = $instance->displayError(404, $isJSON);
-
-                // Send JSON if the response is not a scalar value
-                if (is_object($return) || is_array($return)) {
-                    header('Content-Type: application/json');
-                    echo json_encode($return, JSON_THROW_ON_ERROR);
-                } else {
-                    echo $return;
-                }
-            } else {
-                // Default if nothing registered
-                http_response_code(404);
-                echo "<h1>URL Not Found</h1>";
-                die();
+                $exception->output();
             }
+
+            $isJSON = static::isJSONRequest();
+            $return = $instance->displayError(404, $isJSON);
+
+            // Send JSON if the response is not a scalar value
+            if (is_object($return) || is_array($return)) {
+                header('Content-Type: application/json');
+                echo json_encode($return, JSON_THROW_ON_ERROR);
+            } else {
+                echo $return;
+            }
+        } else {
+            // Default if nothing registered
+            http_response_code(404);
+            echo "<h1>URL Not Found</h1>";
+            die();
         }
     }
 

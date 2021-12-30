@@ -8,7 +8,7 @@ class ApplicationController
 {
     protected Route $currentRoute;
 
-    final public function setCurrentRoute(Route $route)
+    final public function setCurrentRoute(Route $route): void
     {
         $this->currentRoute = $route;
     }
