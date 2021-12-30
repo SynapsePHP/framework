@@ -74,8 +74,6 @@ class Security
 
 /*
  *
- * encrypt
- * decrypt
  * hash
  * generateCSRToken
  * verifyCSRToken

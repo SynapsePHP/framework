@@ -119,6 +119,19 @@ class Router
                                     }
 
                                     if (preg_match('#^' . $_url . '$#', $currentURL, $matched)) {
+                                        $route_attr = $attr->getArguments();
+
+                                        $offset = ($name === Route::class) ? 1 : 2;
+                                        $verb   = (count($route_attr) > $offset) ? $route_attr[$offset] : 'GET';
+
+                                        // Make sure we respect the requested HTTP Method
+                                        if ($_SERVER['REQUEST_METHOD'] !== strtoupper($verb)) {
+                                            // This makes the route invisible to the router
+                                            // so should trigger 404 if the right method is not
+                                            // defined in the routes
+                                            continue;
+                                        }
+
                                         unset($matched[0]);
                                         $params = array_values($matched);
 
