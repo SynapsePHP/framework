@@ -9,19 +9,32 @@ use Synapse\Attributes\SecureRoute;
 
 class Router
 {
-    private static array $controllers = [];
-    private static array $routes      = [];
+    private static array $controllers      = [];
+    private static array $routes           = [];
+    private static string $errorController = '';
 
     /**
      *
      * Register a controller for custom paths (ex: /blog url base within the blog controller)
      *
-     * @param $class
+     * @param string $class
      *
      */
-    public static function registerController($class): void
+    public static function registerController(string $class): void
     {
         static::$controllers[] = $class;
+    }
+
+    /**
+     *
+     * Register what controller will handle the errors (403, 404, 500, etc.)
+     *
+     * @param string $class
+     *
+     */
+    public static function registerErrorController(string $class): void
+    {
+        static::$errorController = $class;
     }
 
     /**
@@ -52,6 +65,7 @@ class Router
             $attrs          = $reflectedClass->getAttributes(Controller::class);
 
             // Controller instance
+            $ctrlName   = $reflectedClass->getName();
             $controller = $reflectedClass->newInstance();
 
             // Base URL for all routes within the controller
@@ -85,6 +99,15 @@ class Router
                                 // Enable combining :id and :any
                                 if (stripos($argument, ':any') !== false) {
                                     $url = str_replace(':any', '([^/]+)', $url);
+                                }
+
+                                if (empty($baseURLs)) {
+                                    $exception = new Exceptions\Route(
+                                        "Your controller {$ctrlName} must define the entry point using the Controller Attribute.",
+                                        500
+                                    );
+
+                                    $exception->output();
                                 }
 
                                 foreach ($baseURLs as $lang => $burl) {
@@ -140,8 +163,47 @@ class Router
                 echo json_encode($return, JSON_THROW_ON_ERROR);
             }
         } else {
-            // TODO: 404
-            echo "NOT FOUND";
+            if (static::$errorController !== '') {
+                $instance = new static::$errorController();
+
+                if (!method_exists($instance, 'displayError')) {
+                    $exception = new Exceptions\Route(
+                        'The registered error controller does not have the required "displayError" method to handle the error. Please insure it exists.',
+                        500
+                    );
+
+                    $exception->output();
+                }
+
+                $isJSON = static::isJSONRequest();
+                $return = $instance->displayError(404, $isJSON);
+
+                // Send JSON if the response is not a scalar value
+                if (is_object($return) || is_array($return)) {
+                    header('Content-Type: application/json');
+                    echo json_encode($return, JSON_THROW_ON_ERROR);
+                } else {
+                    echo $return;
+                }
+            } else {
+                // Default if nothing registered
+                http_response_code(404);
+                echo "<h1>URL Not Found</h1>";
+                die();
+            }
         }
+    }
+
+    private static function isJSONRequest(): bool
+    {
+        $headers = getallheaders();
+
+        foreach ($headers as $name => $value) {
+            if (($name === 'Content-Type') && $value === 'application/json') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
