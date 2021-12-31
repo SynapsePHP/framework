@@ -70,15 +70,49 @@ class Security
 
         return openssl_decrypt($text, $cipher, $key, OPENSSL_RAW_DATA, $iv, $tag);
     }
-}
 
-/*
- *
- * hash
- * generateCSRToken
- * verifyCSRToken
- * generateJWT
- * verifyJWT
- * decodeJWT
- *
- */
+    /**
+     *
+     * Hash a string with a good algorithm
+     *
+     * @param string $string
+     * @return string
+     *
+     */
+    public function hash(string $string): string
+    {
+        return hash('sha256', $string);
+    }
+
+    /**
+     *
+     * Generate a CSRF token for the current user
+     *
+     * @return string
+     *
+     */
+    public function generateCSRFToken(): string
+    {
+        $token  = bin2hex(openssl_random_pseudo_bytes(16));
+        $expire = time() + 300;
+
+        $_SESSION['synapse_csrf_token']  = $token;
+        $_SESSION['synapse_csrf_expire'] = $expire;
+
+        return $token;
+    }
+
+    public function verifyCSRFToken(string $token): bool
+    {
+        $tok = $_SESSION['synapse_csrf_token'];
+        $exp = $_SESSION['synapse_csrf_expire'];
+
+        if (empty($tok)) { return false; }
+        if ($tok !== $token) { return false; }
+        if (time() > $exp) { return false; }
+
+        return true;
+    }
+
+    // TODO: JWT Implementation
+}

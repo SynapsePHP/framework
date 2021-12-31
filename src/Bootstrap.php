@@ -10,13 +10,14 @@ class Bootstrap
 {
     public static function init(string $root): void
     {
+        session_start();
+
         // Load .env file
         try {
             $dotenv = Dotenv::createImmutable($root);
             $dotenv->load();
         } catch (InvalidPathException $e) {
             // Default values
-            print_r($e);
             $dotenv = Dotenv::createImmutable($root . '/config/defaults', 'env');
             $dotenv->load();
         }
